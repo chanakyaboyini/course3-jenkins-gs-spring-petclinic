@@ -23,24 +23,8 @@ pipeline {
             steps {
                 archiveArtifacts artifacts: '**/target/*.jar'
             }
-        }
-        stage('parallel branches') {
-            parallel {
-                stage('Main branch') {
-                    steps {
-                        sh "echo main branch"
-                        sleep 5
-                        sleep 10
-                    }
-                }
-                stage('DEV branch') {
-                    steps {
-                        sh "echo dev branch"
-                        sleep 5
-                    }
-                }
-            }
-            failFast true
+        
+        
         }
         stage('test') {
             steps {
