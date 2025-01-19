@@ -10,7 +10,7 @@ pipeline {
                     // Get some code from a GitHub repository
                     gitCheckout(
                         branch: 'main',
-                        url: 'https://github.com/chanakyaboyini/shared_library.git'
+                        url: 'https://github.com/chanakyaboyini/jenkins_shared_lib.git'
                     )
                 }
             }
