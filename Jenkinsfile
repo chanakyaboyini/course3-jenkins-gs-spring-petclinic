@@ -38,9 +38,3 @@ pipeline {
         }
     }
 }
-post {
-        always {
-            emailext body: 'Check the build Update', subject: 'Build Update', to: 'Sachinrohit15@gmail.com'
-            
-    }
-}
