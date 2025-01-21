@@ -15,12 +15,13 @@ pipeline {
                 }
             }
         }
-        stage('Unit Test Maven') {
+        stage('build') {
             steps {
-                script {
-                    
-                    mvnTest()
-                }
+                // Run Maven on a Unix agent.
+                sh "./mvnw.cmd clean package"
+
+                // To run Maven on a Windows agent, use
+                // bat "mvn -Dmaven.test.failure.ignore=true clean package"
             }
         }
     }
