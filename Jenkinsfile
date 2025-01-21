@@ -34,7 +34,7 @@ pipeline {
         stage('Static Code Analysis') {
             steps {
                 script {
-                    def (SonarQubecredentialsId='Jenkins_Sonar_test_practice')
+                    def SonarQubecredentialsId = 'Jenkins_Sonar_test_practice'
                     staticCodeAnalysis(SonarQubecredentialsId)
                 }
             }
