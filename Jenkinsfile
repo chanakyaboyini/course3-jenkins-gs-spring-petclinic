@@ -24,5 +24,12 @@ pipeline {
                 // bat "mvn -Dmaven.test.failure.ignore=true clean package"
             }
         }
+        stage('Integraion test') {
+            steps {
+                script {
+                    mvnIntegrationTest()
+                }
+            }
+        }
     }
 }
