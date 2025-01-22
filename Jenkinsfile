@@ -3,6 +3,11 @@
 pipeline {
     agent any
 
+    parameters {
+        string(name: 'BRANCH', defaultValue: 'main', description: 'Branch to build')
+        choice(name: 'ENVIRONMENT', choices: ['dev', 'test', 'prod'], description: 'Target environment')
+    }
+
     stages {
         stage('checkout') {
             steps {
