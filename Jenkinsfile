@@ -14,7 +14,7 @@ pipeline {
                 script {
                     // Get some code from a GitHub repository
                     gitCheckout(
-                        branch: 'main',
+                        branch: "${params.BRANCH}",
                         url: 'https://github.com/chanakyaboyini/course3-jenkins-gs-spring-petclinic.git'
                     )
                 }
