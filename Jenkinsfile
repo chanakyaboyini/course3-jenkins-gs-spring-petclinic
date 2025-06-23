@@ -27,7 +27,7 @@ pipeline {
         stage('Static Code Analysis') {
             steps {
                 // Run SonarQube analysis using Maven.
-                withSonarQubeEnv('SonarQubeServer') {
+                withSonarQubeEnv('Sonar-scanner') {
                     // Using the Maven Sonar plugin defined in your pom.xml.
                     sh 'mvn sonar:sonar'
                 }
