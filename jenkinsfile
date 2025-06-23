@@ -14,5 +14,11 @@ pipeline {
                 // Add your build logic here.
             }
         }
+        stage('Compile') {
+            steps {
+                // Compile the code.
+                sh 'mvn clean compile'
+            }
+        }
     }
 }
