@@ -24,5 +24,23 @@ pipeline {
                 sh 'mvn package'
             }
         }
+        stage('Static Code Analysis') {
+            steps {
+                // Run SonarQube analysis using Maven.
+                withSonarQubeEnv('SonarQubeServer') {
+                    // Using the Maven Sonar plugin defined in your pom.xml.
+                    sh 'mvn sonar:sonar'
+                }
+            }
+        }
+        stage('Quality Gate') {
+            steps {
+                // Wait for SonarQube to provide a Quality Gate result.
+                // This step waits up to 1 minute (adjust as needed) and aborts the build if quality gate fails.
+                timeout(time: 1, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
     }
 }
