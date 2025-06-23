@@ -24,23 +24,5 @@ pipeline {
                 sh 'mvn package'
             }
         }
-        stage('Module Checkout') {
-            steps {
-                // Check out code (again) if needed for module-specific build.
-                checkout scm
-            }
-        }
-        stage('Module Compile') {
-            steps {
-                // Compile code for a specific module (moduleA) and its dependencies.
-                sh 'mvn clean compile -pl moduleA -am'
-            }
-        }
-        stage('Module Package Artifacts') {
-            steps {
-                // Package the artifacts for the specific module.
-                sh 'mvn package'
-            }
-        }
     }
 }
