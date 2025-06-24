@@ -3,6 +3,8 @@ pipeline {
 
     tools {
         maven 'maven3' // Make sure the name matches your Global Tool Configuration
+        sonarQubeScanner 'Sonar-scanner'
+
     }
 
     stages {
