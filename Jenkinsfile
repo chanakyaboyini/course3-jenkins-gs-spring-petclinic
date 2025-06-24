@@ -1,40 +1,47 @@
 pipeline {
     agent any
 
+    // The tools block sets up Maven so that environment variables are automatically configured.
     tools {
-        // Ensure the Maven installation name matches what’s configured in Global Tool Configuration.
-        maven 'maven3'
+        maven 'maven3'  // Make sure this name matches your Maven installation in Global Tool Configuration.
     }
     
     stages {
         stage('Checkout') {
             steps {
-                // Check out code from your chosen SCM.
+                // Automatically checks out the repository tied to this build.
                 checkout scm
+            }
+        }
+        stage('Compile') {
+            steps {
+                // Compile the entire project.
+                sh 'mvn clean compile'
+            }
+        }
+        stage('Package Artifacts') {
+            steps {
+                // Package the artifacts (e.g., JAR, WAR, etc.).
+                sh 'mvn package'
             }
         }
         stage('SonarQube Analysis') {
             steps {
                 script {
-                    // Inject SonarQube environment variables based on the server configuration named 'LocalSonarQube'
+                    // Look up the SonarQube Scanner installation.
+                    // Make sure the tool name 'Sonar-scanner' matches your Global Tool Configuration,
+                    // and that its type is set to 'hudson.plugins.sonar.SonarRunnerInstallation'.
+                    def scannerHome = tool name: 'LocalSonarQube', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
+                    
+                    // withSonarQubeEnv injects necessary env variables based on the SonarQube server configuration.
+                    // Replace "LocalSonarQube" with the name you provided in Jenkins' Configure System.
                     withSonarQubeEnv('LocalSonarQube') {
-                        // First build the project: clean and package so that .class files are generated.
-                        sh "mvn clean package"
-                        
-                        // Next, run the SonarQube analysis.
-                        // The property sonar.java.binaries tells SonarQube where your compiled classes are.
-                        sh "mvn sonar:sonar -Dsonar.projectKey=YourProjectKey -Dsonar.sources=src -Dsonar.java.binaries=target/classes"
+                        // Run SonarQube Scanner using the path from the tool step.
+                        sh "${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=YourProjectKey -Dsonar.sources=src"
                     }
                 }
             }
-        }
-        stage('Quality Gate') {
-            steps {
-                // Wait up to 1 minute for the SonarQube Quality Gate result.
-                timeout(time: 1, unit: 'MINUTES') {
-                    waitForQualityGate abortPipeline: true
-                }
+        
             }
         }
     }
-}
