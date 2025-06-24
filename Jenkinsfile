@@ -42,6 +42,14 @@ pipeline {
                 }
             }
         }
-        
+        stage('Quality Gate') {
+            steps {
+                // Wait for SonarQube to produce a Quality Gate result.
+                // This step waits up to 1 minute and will abort the pipeline if the quality gate fails.
+                timeout(time: 1, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
             }
         }
+    }
+}
