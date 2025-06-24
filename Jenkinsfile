@@ -1,12 +1,11 @@
 pipeline {
     agent any
 
+    // The tools block sets up Maven so that environment variables are automatically configured.
     tools {
-        maven 'maven3' // Make sure the name matches your Global Tool Configuration
-        sonarQubeScanner 'Sonar-scanner'
-
+        maven 'maven3'  // Make sure this name matches your Maven installation in Global Tool Configuration.
     }
-
+    
     stages {
         stage('Checkout') {
             steps {
@@ -22,23 +21,31 @@ pipeline {
         }
         stage('Package Artifacts') {
             steps {
-                // Package the artifacts (this might create a JAR, WAR, etc.).
+                // Package the artifacts (e.g., JAR, WAR, etc.).
                 sh 'mvn package'
             }
         }
-        stage('Static Code Analysis') {
+        stage('SonarQube Analysis') {
             steps {
-                // Run SonarQube analysis using Maven.
-                withSonarQubeEnv('Sonar-scanner') {
-                    // Using the Maven Sonar plugin defined in your pom.xml.
-                    sh 'mvn sonar:sonar'
+                script {
+                    // Look up the SonarQube Scanner installation.
+                    // Make sure the tool name 'Sonar-scanner' matches your Global Tool Configuration,
+                    // and that its type is set to 'hudson.plugins.sonar.SonarRunnerInstallation'.
+                    def scannerHome = tool name: 'Sonar-scanner', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
+                    
+                    // withSonarQubeEnv injects necessary env variables based on the SonarQube server configuration.
+                    // Replace "LocalSonarQube" with the name you provided in Jenkins' Configure System.
+                    withSonarQubeEnv('LocalSonarQube') {
+                        // Run SonarQube Scanner using the path from the tool step.
+                        sh "${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=YourProjectKey -Dsonar.sources=src"
+                    }
                 }
             }
         }
         stage('Quality Gate') {
             steps {
-                // Wait for SonarQube to provide a Quality Gate result.
-                // This step waits up to 1 minute (adjust as needed) and aborts the build if quality gate fails.
+                // Wait for SonarQube to produce a Quality Gate result.
+                // This step waits up to 1 minute and will abort the pipeline if the quality gate fails.
                 timeout(time: 1, unit: 'MINUTES') {
                     waitForQualityGate abortPipeline: true
                 }
