@@ -33,14 +33,21 @@ pipeline {
         }
 
         stage('SonarQube Analysis') {
-    def mvn = tool 'Default Maven';
-    withSonarQubeEnv() {
-      sh "${mvn}/bin/mvn clean verify sonar:sonar -Dsonar.projectKey=Spring-PetClinic -Dsonar.projectName='Spring-PetClinic'"
-    }
-  }
-}
+            steps {
+                script {
+                    // Resolve your Maven tool installation
+                    def mvnHome = tool 'maven3'
+                    withSonarQubeEnv() {
+                        sh """
+                            ${mvnHome}/bin/mvn clean verify sonar:sonar \
+                              -Dsonar.projectKey=Spring-PetClinic \
+                              -Dsonar.projectName=Spring-PetClinic
+                        """
+                    }
+                }
+            }
         }
-    
+    }
 
     post {
         always {
