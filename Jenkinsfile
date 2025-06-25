@@ -37,11 +37,13 @@ pipeline {
                 script {
                     // Resolve your Maven tool installation
                     def mvnHome = tool 'maven3'
-                    withSonarQubeEnv() {
+                    // withSonarQubeEnv injects SONAR_HOST_URL & SONAR_AUTH_TOKEN
+                    withSonarQubeEnv('LocalSonarQube') {
                         sh """
                             ${mvnHome}/bin/mvn clean verify sonar:sonar \
                               -Dsonar.projectKey=Spring-PetClinic \
-                              -Dsonar.projectName=Spring-PetClinic
+                              -Dsonar.login=${env.SONAR_AUTH_TOKEN} \
+                              -Dsonar.host.url=${env.SONAR_HOST_URL}
                         """
                     }
                 }
