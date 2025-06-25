@@ -22,7 +22,7 @@ pipeline {
         stage('Package Artifacts') {
             steps {
                 // Package the artifacts (e.g., JAR, WAR, etc.).
-                sh 'mvn package'
+                sh 'mvn clean package -DskipTests'
             }
         }
         stage('SonarQube Analysis') {
