@@ -33,22 +33,14 @@ pipeline {
         }
 
         stage('SonarQube Analysis') {
-            environment {
-                // Tune the scanner JVM if needed
-                SONAR_SCANNER_OPTS = '-Xmx512m'
-            }
-            steps {
-                withSonarQubeEnv('LocalSonarQube') {
-                    sh """
-                        ${tool 'LocalSonarQube'}/bin/sonar-scanner \
-                          -Dsonar.projectKey=YourProjectKey \
-                          -Dsonar.sources=src \
-                          -Dsonar.java.binaries=target/classes
-                    """
-                }
-            }
-        }
+    def mvn = tool 'Default Maven';
+    withSonarQubeEnv() {
+      sh "${mvn}/bin/mvn clean verify sonar:sonar -Dsonar.projectKey=Spring-PetClinic -Dsonar.projectName='Spring-PetClinic'"
     }
+  }
+}
+        }
+    
 
     post {
         always {
