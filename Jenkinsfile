@@ -1,35 +1,27 @@
 pipeline {
-    agent any
+  agent any
 
-    tools {
-        maven 'maven3' // Name should match your Maven installation in Jenkins
+  tools {
+    maven 'maven3'
+    sonarScanner 'LocalSonarQube'    // <-- name from Global Tool Configuration
+  }
+
+  stages {
+    // … checkout, compile, package …
+
+    stage('SonarQube Analysis') {
+      steps {
+        withSonarQubeEnv('LocalSonarQube') {
+          // 'SONAR_SCANNER_HOME' is injected for you by the tools block
+          sh """
+            $SONAR_SCANNER_HOME/bin/sonar-scanner \
+              -Dsonar.projectKey=myproject \
+              -Dsonar.sources=. \
+              -Dsonar.host.url=$SONAR_HOST_URL \
+              -Dsonar.login=$SONAR_AUTH_TOKEN
+          """
+        }
+      }
     }
-
-    stages {
-        stage('Checkout') {
-            steps {
-                checkout scm
-            }
-        }
-
-        stage('Compile') {
-            steps {
-                sh 'mvn clean compile'
-            }
-        }
-
-        stage('Package Artifacts') {
-            steps {
-                sh 'mvn package'
-            }
-        }
-
-        stage('SonarQube Analysis') {
-            steps {
-                withSonarQubeEnv('LocalSonarQube') {
-                    sh '''LocalSonarQube -Dsonar.projectKey=myproject -Dsonar.sources=. Dsonar.host.url=http://localhost:9000 Dsonar.login=your_token'''
-                }
-            }
-        }
-    }
+  }
 }
