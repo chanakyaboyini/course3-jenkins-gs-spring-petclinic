@@ -27,7 +27,7 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('LocalSonarQube') {
-                    sh '''sonar-scanner -Dsonar.projectKey=myproject -Dsonar.sources=. Dsonar.host.url=http://192.168.29.163:9000 Dsonar.login=your_token'''
+                    sh '''sonar-scanner -Dsonar.projectKey=myproject -Dsonar.sources=. Dsonar.host.url=http://localhost:9000 Dsonar.login=your_token'''
                 }
             }
         }
