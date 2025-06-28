@@ -26,7 +26,7 @@ pipeline {
 
     stage('SonarQube Analysis') {
       environment {
-        SONAR_HOST_URL   = 'http://localhost:9000'
+        SONAR_HOST_URL   = 'http://host.docker.internal:9000'
         SONAR_AUTH_TOKEN = credentials('LocalSonarQube')
       }
       steps {
