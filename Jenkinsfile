@@ -1,42 +1,33 @@
 pipeline {
-  agent any
+    agent any
 
-  tools {
-    maven 'maven3'    // must match your Jenkins Maven tool name
-  }
-
-  stages {
-    stage('Checkout') {
-      steps {
-        checkout scm
-      }
+    tools {
+        maven 'maven3' // must match your Jenkins Maven tool name
     }
 
-    stage('Compile') {
-      steps {
-        sh 'mvn clean compile'
-      }
-    }
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
 
-    stage('Package Artifacts') {
-      steps {
-        sh 'mvn package'
-      }
-    }
+        stage('Compile') {
+            steps {
+                sh 'mvn clean compile'
+            }
+        }
 
-    stage('SonarQube Analysis') {
-      environment {
-        SONAR_HOST_URL   = 'http://host.docker.internal:9000'
-        SONAR_AUTH_TOKEN = credentials('LocalSonarQube')
-      }
-      steps {
-        sh '''
-          mvn sonar:sonar \
-            -Dsonar.projectKey=your_project_key \
-            -Dsonar.host.url="${SONAR_HOST_URL}" \
-            -Dsonar.login="${SONAR_AUTH_TOKEN}"
-        '''
-      }
+        stage('Package Artifacts') {
+            steps {
+                sh 'mvn package'
+            }
+        }
+
+        stage('Run Tests') {
+            steps {
+                sh 'mvn test'
+            }
+        }
     }
-  }
 }
