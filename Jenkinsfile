@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     tools {
-        maven 'maven3' // must match your Jenkins Maven tool name
+        maven 'maven3'    // must match your Jenkins Maven tool name
     }
 
     stages {
@@ -28,6 +28,25 @@ pipeline {
             steps {
                 sh 'mvn test'
             }
+        }
+
+        stage('Test Results') {
+            steps {
+                junit '**/target/surefire-reports/*.xml'
+            }
+        }
+    }
+    post {
+        always {
+            // archive the built jars and test results every run
+            archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true
+            junit '**/target/surefire-reports/*.xml'
+        }
+        success {
+            echo 'Build completed successfully!'
+        }
+        failure {
+            echo 'Build failed!'
         }
     }
 }
