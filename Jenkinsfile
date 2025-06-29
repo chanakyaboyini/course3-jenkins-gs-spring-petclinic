@@ -40,10 +40,13 @@ pipeline {
             steps {
                 cleanWs()   // clean workspace after build
             }
-            stage ('Docker build') {
-              docker.image('maven:3.6.3-jdk-8').inside {
-                sh 'mvn clean'
-              }
+        }
+
+        stage('Docker Build') {
+            steps {
+                docker.image('maven:3.6.3-jdk-8').inside {
+                    sh 'mvn clean'
+                }
             }
         }
     }
