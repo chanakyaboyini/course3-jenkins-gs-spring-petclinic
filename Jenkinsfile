@@ -48,5 +48,10 @@ pipeline {
         failure {
             echo 'Build failed!'
         }
+        stage('Cleanup') {
+            steps {
+                cleanWs() // Clean workspace after build
+            }
+        }
     }
 }
