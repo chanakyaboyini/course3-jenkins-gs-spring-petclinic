@@ -35,7 +35,14 @@ pipeline {
                 junit '**/target/surefire-reports/*.xml'
             }
         }
+
+        stage('Cleanup') {
+            steps {
+                cleanWs()   // clean workspace after build
+            }
+        }
     }
+
     post {
         always {
             // archive the built jars and test results every run
@@ -47,11 +54,6 @@ pipeline {
         }
         failure {
             echo 'Build failed!'
-        }
-        stage('Cleanup') {
-            steps {
-                cleanWs() // Clean workspace after build
-            }
         }
     }
 }
