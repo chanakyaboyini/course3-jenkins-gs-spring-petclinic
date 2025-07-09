@@ -38,7 +38,7 @@ pipeline {
             [
               artifactId: 'my-app',
               type: 'jar',
-              file: 'target/my-app-3.1.0.jar'
+              file: 'target/spring-petclinic-3.1.0-SNAPSHOT.jar.original'
             ]
           ]
         )
