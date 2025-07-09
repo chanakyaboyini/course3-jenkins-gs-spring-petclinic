@@ -30,7 +30,7 @@ pipeline {
           nexusVersion:   'nexus3',
           protocol:       'http',
           nexusUrl:       'http://localhost:8082',  // or http://nexus:8081 if on Docker network
-          credentialsId:  'nexus-admin',
+          credentialsId:  'Spring-Clinic',
           repository:     'maven-releases',
           groupId:        'com.example',
           version:        '3.1.0-SNAPSHOT',
