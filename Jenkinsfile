@@ -5,6 +5,11 @@ pipeline {
     maven 'maven3'               // your Jenkins Maven tool name
   }
 
+  environment {
+    NEXUS_URL     = 'http://localhost:8082'  // or http://nexus:8081 on Docker network
+    NEXUS_CRED_ID = 'nexus-admin'            // must match your Jenkins credential ID
+  }
+
   stages {
     stage('Checkout') {
       steps {
@@ -12,15 +17,23 @@ pipeline {
       }
     }
 
-    stage('Compile') {
+    stage('Build & Parse POM') {
       steps {
-        sh 'mvn clean compile'
-      }
-    }
+        sh 'mvn clean package -DskipTests'
 
-    stage('Package Artifacts') {
-      steps {
-        sh 'mvn package -DskipTests'
+        script {
+          // parse pom.xml
+          def pom = readMavenPom file: 'pom.xml'
+          env.GROUP_ID     = pom.groupId
+          env.ARTIFACT_ID  = pom.artifactId
+          env.VERSION      = pom.version
+          // choose repo
+          env.REPO = env.VERSION.endsWith('-SNAPSHOT') 
+                      ? 'maven-snapshots' 
+                      : 'maven-releases'
+          // artifact filename
+          env.FILE = "target/${env.ARTIFACT_ID}-${env.VERSION}.jar"
+        }
       }
     }
 
@@ -29,18 +42,14 @@ pipeline {
         nexusArtifactUploader(
           nexusVersion:   'nexus3',
           protocol:       'http',
-          nexusUrl:       'localhost:8082',  // or http://nexus:8081 if on Docker network
-          credentialsId:  'Spring-Clinic',
-          repository:     'maven-releases',
-          groupId:        'com.example',
-          version:        '3.1.0-SNAPSHOT',
-          artifacts: [
-            [
-              artifactId: 'spring-petclinic',
-              type:       'jar',
-              file:       'target/spring-petclinic-3.1.0-SNAPSHOT.jar'
-            ]
-          ]
+          nexusUrl:       env.NEXUS_URL,
+          credentialsId:  env.NEXUS_CRED_ID,
+          repository:     env.REPO,
+          groupId:        env.GROUP_ID,
+          artifactId:     env.ARTIFACT_ID,
+          version:        env.VERSION,
+          type:           'jar',
+          file:           env.FILE
         )
       }
     }
@@ -48,10 +57,10 @@ pipeline {
 
   post {
     success {
-      echo 'Pipeline completed successfully!'
+      echo "✅ Successfully published ${env.ARTIFACT_ID}-${env.VERSION}.jar to ${env.REPO}"
     }
     failure {
-      echo 'Pipeline failed. Please check the logs.'
+      echo "❌ Pipeline failed – check the console logs above"
     }
   }
 }
