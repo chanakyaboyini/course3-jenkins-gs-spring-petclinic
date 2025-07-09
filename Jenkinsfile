@@ -32,10 +32,10 @@ pipeline {
 
     stage('Deploy to Nexus') {
       steps {
-        nexusArtifactUploader(
+        
         nexusArtifactUploader artifacts: [[artifactId: 'Spring-Clinic', classifier: '', file: 'target/spring-petclinic-3.1.0-SNAPSHOT.jar', type: '.jar']], credentialsId: 'Spring-Clinic', groupId: 'org.springframework.samples', nexusUrl: 'localhost:8082', nexusVersion: 'nexus3', protocol: 'http', repository: 'Spring-Clinic', version: '3.1.0'
           
-        )
+        
       }
     }
   }
