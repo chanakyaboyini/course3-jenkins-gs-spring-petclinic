@@ -1,28 +1,57 @@
 pipeline {
   agent any
 
-  tools { maven 'maven3' }
+  tools {
+    maven 'maven3'               // must match your Jenkins Maven installation name
+  }
 
   stages {
-    /* […] your other stages here […] */
-
-    stage('Docker Build') {
+    stage('Checkout') {
       steps {
-        script {
-          docker.image('maven:3.6.3-jdk-8').inside {
-            sh 'mvn clean'
-          }
-        }
+        checkout scm
+      }
+    }
+
+    stage('Compile') {
+      steps {
+        sh 'mvn clean compile'
+      }
+    }
+
+    stage('Package Artifacts') {
+      steps {
+        sh 'mvn package -DskipTests'
+      }
+    }
+
+    stage('Publish to Nexus') {
+      steps {
+        nexusArtifactUploader(
+          nexusVersion: 'nexus3',           // OSS v3
+          protocol: 'http',
+          nexusUrl: 'localhost:8082',       // your Nexus host:port
+          credentialsId: 'Spring-Clinic',   // ID of your Jenkins-stored Nexus creds
+          repository: 'maven-releases',     // the hosted repo name you created
+          groupId: 'com.example',
+          version: '3.1.0',
+          artifacts: [
+            [
+              artifactId: 'my-app',
+              type: 'jar',
+              file: 'target/my-app-3.1.0.jar'
+            ]
+          ]
+        )
       }
     }
   }
 
   post {
-    always {
-      archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true
-      junit '**/target/surefire-reports/*.xml'
+    success {
+      echo 'Pipeline completed successfully!'
     }
-    success { echo 'Build completed successfully!' }
-    failure { echo 'Build failed!' }
+    failure {
+      echo 'Pipeline failed. Please check the logs.'
+    }
   }
 }
