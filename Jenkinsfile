@@ -24,26 +24,28 @@ pipeline {
       }
     }
 
-    stage('Publish to Nexus') {
+    stage('Package') {
       steps {
-        sh 'mvn package'
+        sh 'mvn package -DskipTests'
       }
     }
-    stage{
-      name: 'Deploy to Nexus'
+
+    stage('Deploy to Nexus') {
       steps {
+        nexusArtifactUploader(
         nexusArtifactUploader artifacts: [[artifactId: 'Spring-Clinic', classifier: '', file: 'target/spring-petclinic-3.1.0-SNAPSHOT.jar', type: '.jar']], credentialsId: 'Spring-Clinic', groupId: 'org.springframework.samples', nexusUrl: 'localhost:8082', nexusVersion: 'nexus3', protocol: 'http', repository: 'Spring-Clinic', version: '3.1.0'
-        }
+          
+        )
       }
     }
   }
 
   post {
     success {
-      echo "✅ Build, test, and package completed successfully."
+      echo '✅ Pipeline completed successfully.'
     }
     failure {
-      echo "❌ Pipeline failed – check the console logs."
+      echo '❌ Pipeline failed – check the console logs.'
     }
   }
 }
