@@ -27,20 +27,18 @@ pipeline {
     stage('Publish to Nexus') {
       steps {
         nexusArtifactUploader(
-          nexusVersion: 'nexus3',           // OSS v3
+          nexusVersion: 'nexus3',
           protocol: 'http',
-          nexusUrl: 'localhost:8082',       // your Nexus host:port
-          credentialsId: 'Spring-Clinic',   // ID of your Jenkins-stored Nexus creds
-          repository: 'maven-releases',     // the hosted repo name you created
+          nexusUrl: 'http://localhost:8082',
+          credentialsId: 'nexus-admin',
+          repository: 'maven-releases',
           groupId: 'com.example',
-          version: '3.1.0',
-          artifacts: [
-            [
-              artifactId: 'my-app',
-              type: 'jar',
-              file: 'target/spring-petclinic-3.1.0-SNAPSHOT.jar.original'
-            ]
-          ]
+          artifactId: 'spring-petclinic',
+          version: '3.1.0-SNAPSHOT',
+          type: 'jar',
+          file: 'target/spring-petclinic-3.1.0-SNAPSHOT.jar'
+
+          
         )
       }
     }
