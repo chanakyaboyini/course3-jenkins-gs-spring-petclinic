@@ -29,7 +29,7 @@ pipeline {
         nexusArtifactUploader(
           nexusVersion:   'nexus3',
           protocol:       'http',
-          nexusUrl:       'http://nexus:8082',  // or http://nexus:8081 if on Docker network
+          nexusUrl:       'nexus:8082',  // or http://nexus:8081 if on Docker network
           credentialsId:  'Spring-Clinic',
           repository:     'maven-releases',
           groupId:        'com.example',
