@@ -29,16 +29,14 @@ pipeline {
         nexusArtifactUploader(
           nexusVersion: 'nexus3',
           protocol: 'http',
-          nexusUrl: 'http://localhost:8082',
+          nexusUrl:   'http://localhost:8082',  // adjust if using a Docker network alias
           credentialsId: 'nexus-admin',
-          repository: 'maven-releases',
-          groupId: 'com.example',
-          artifactId: 'spring-petclinic',
-          version: '3.1.0-SNAPSHOT',
-          type: 'jar',
-          file: 'target/spring-petclinic-3.1.0-SNAPSHOT.jar'
-
-          
+          repository:    'maven-releases',
+          groupId:       'com.example',
+          artifactId:    'spring-petclinic',
+          version:       '3.1.0-SNAPSHOT',
+          type:          'jar',
+          file:          'target/spring-petclinic-3.1.0-SNAPSHOT.jar'
         )
       }
     }
