@@ -2,7 +2,7 @@ pipeline {
   agent any
 
   tools {
-    maven 'maven3'               // must match your Jenkins Maven installation name
+    maven 'maven3'               // your Jenkins Maven tool name
   }
 
   stages {
@@ -27,16 +27,20 @@ pipeline {
     stage('Publish to Nexus') {
       steps {
         nexusArtifactUploader(
-          nexusVersion: 'nexus3',
-          protocol: 'http',
-          nexusUrl:   'http://localhost:8082',  // adjust if using a Docker network alias
-          credentialsId: 'nexus-admin',
-          repository:    'maven-releases',
-          groupId:       'com.example',
-          artifactId:    'spring-petclinic',
-          version:       '3.1.0-SNAPSHOT',
-          type:          'jar',
-          file:          'target/spring-petclinic-3.1.0-SNAPSHOT.jar'
+          nexusVersion:   'nexus3',
+          protocol:       'http',
+          nexusUrl:       'http://localhost:8082',  // or http://nexus:8081 if on Docker network
+          credentialsId:  'nexus-admin',
+          repository:     'maven-releases',
+          groupId:        'com.example',
+          version:        '3.1.0-SNAPSHOT',
+          artifacts: [
+            [
+              artifactId: 'spring-petclinic',
+              type:       'jar',
+              file:       'target/spring-petclinic-3.1.0-SNAPSHOT.jar'
+            ]
+          ]
         )
       }
     }
