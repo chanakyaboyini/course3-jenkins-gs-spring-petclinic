@@ -2,7 +2,7 @@ pipeline {
   agent any
 
   tools {
-    maven 'maven3'               // your Jenkins Maven tool name
+    maven 'maven3'            // your Jenkins Maven tool name
   }
 
   environment {
@@ -17,50 +17,50 @@ pipeline {
       }
     }
 
-    stage('Build & Parse POM') {
+    stage('Build') {
       steps {
         sh 'mvn clean package -DskipTests'
-
-        script {
-          // parse pom.xml
-          def pom = readMavenPom file: 'pom.xml'
-          env.GROUP_ID     = pom.groupId
-          env.ARTIFACT_ID  = pom.artifactId
-          env.VERSION      = pom.version
-          // choose repo
-          env.REPO = env.VERSION.endsWith('-SNAPSHOT') 
-                      ? 'maven-snapshots' 
-                      : 'maven-releases'
-          // artifact filename
-          env.FILE = "target/${env.ARTIFACT_ID}-${env.VERSION}.jar"
-        }
       }
     }
 
     stage('Publish to Nexus') {
       steps {
-        nexusArtifactUploader(
-          nexusVersion:   'nexus3',
-          protocol:       'http',
-          nexusUrl:       env.NEXUS_URL,
-          credentialsId:  env.NEXUS_CRED_ID,
-          repository:     env.REPO,
-          groupId:        env.GROUP_ID,
-          artifactId:     env.ARTIFACT_ID,
-          version:        env.VERSION,
-          type:           'jar',
-          file:           env.FILE
-        )
+        script {
+          // Parse the POM for GAV coords
+          def pom       = readMavenPom file: 'pom.xml'
+          def groupId   = pom.groupId
+          def artifact  = pom.artifactId
+          def version   = pom.version
+          // Choose snapshot vs release repo
+          def repo      = version.endsWith('-SNAPSHOT') 
+                            ? 'maven-snapshots' 
+                            : 'maven-releases'
+          def jarFile   = "target/${artifact}-${version}.jar"
+
+          // Upload to Nexus
+          nexusArtifactUploader(
+            nexusVersion:  'nexus3',
+            protocol:      'http',
+            nexusUrl:      env.NEXUS_URL,
+            credentialsId: env.NEXUS_CRED_ID,
+            repository:    repo,
+            groupId:       groupId,
+            artifactId:    artifact,
+            version:       version,
+            type:          'jar',
+            file:          jarFile
+          )
+        }
       }
     }
   }
 
   post {
     success {
-      echo "✅ Successfully published ${env.ARTIFACT_ID}-${env.VERSION}.jar to ${env.REPO}"
+      echo "✅ Published ${env.ARTIFACT_ID}-${env.VERSION}.jar to ${env.REPO}"
     }
     failure {
-      echo "❌ Pipeline failed – check the console logs above"
+      echo "❌ Pipeline failed – check the console logs."
     }
   }
 }
