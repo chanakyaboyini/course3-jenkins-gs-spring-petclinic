@@ -32,7 +32,7 @@ pipeline {
           nexusUrl      : '3.93.9.212:8081',
           credentialsId : 'Spring-Clinic',
           groupId       : 'org.springframework.samples',
-          version       : '3.1.0-SNAPSHOT',
+          version       : '3.1.0',
           repository    : 'Spring-Clinic',
           artifacts     : [
             [
