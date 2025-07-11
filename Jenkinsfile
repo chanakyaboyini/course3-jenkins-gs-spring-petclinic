@@ -38,7 +38,7 @@ pipeline {
             [
               artifactId : 'Spring-Clinic',
               classifier : '',
-              file       : 'target/Spring-Clinic-3.1.0.jar',
+              file       : 'target/spring-petclinic-3.1.0-SNAPSHOT.jar',
               type       : 'jar'
             ]
           ]
