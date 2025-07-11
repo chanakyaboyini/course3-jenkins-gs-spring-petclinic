@@ -30,9 +30,9 @@ pipeline {
           nexusVersion  : 'nexus3',
           protocol      : 'http',
           nexusUrl      : '3.93.9.212:8081',
-          credentialsId : 'your-jenkins-credentials-id',
+          credentialsId : 'Spring-Clinic',
           groupId       : 'org.springframework.samples',
-          version       : '3.1.0',
+          version       : '3.1.0-SNAPSHOT',
           repository    : 'Spring-Clinic',
           artifacts     : [
             [
