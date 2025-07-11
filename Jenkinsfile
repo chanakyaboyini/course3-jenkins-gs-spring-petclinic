@@ -2,7 +2,7 @@ pipeline {
   agent any
 
   tools {
-    maven 'maven3'    // your Jenkins Maven tool name
+    maven 'maven3'
   }
 
   stages {
@@ -18,8 +18,6 @@ pipeline {
       }
     }
 
-  
-
     stage('Package') {
       steps {
         sh 'mvn package -DskipTests'
@@ -28,10 +26,23 @@ pipeline {
 
     stage('Deploy to Nexus') {
       steps {
-        
-        nexusArtifactUploader artifacts: [[artifactId: 'Spring-Clinic', classifier: '', file: 'target/spring-petclinic-3.1.0-SNAPSHOT.jar', type: '.jar']], credentialsId: 'Spring-Clinic', groupId: 'org.springframework.samples', nexusUrl: '3.93.9.212:8081', nexusVersion: 'nexus3', protocol: 'http', repository: 'Spring-Clinic', version: '3.1.0'
-          
-        
+        nexusArtifactUploader(
+          nexusVersion  : 'nexus3',
+          protocol      : 'http',
+          nexusUrl      : '3.93.9.212:8081',
+          credentialsId : 'your-jenkins-credentials-id',
+          groupId       : 'org.springframework.samples',
+          version       : '3.1.0',
+          repository    : 'Spring-Clinic',
+          artifacts     : [
+            [
+              artifactId : 'Spring-Clinic',
+              classifier : '',
+              file       : 'target/Spring-Clinic-3.1.0.jar',
+              type       : 'jar'
+            ]
+          ]
+        )
       }
     }
   }
