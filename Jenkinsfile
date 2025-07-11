@@ -1,9 +1,6 @@
 pipeline {
   agent any
-
-  tools {
-    maven 'maven3'
-  }
+  tools { maven 'maven3' }
 
   stages {
     stage('Build & Package') {
@@ -16,23 +13,21 @@ pipeline {
     stage('Deploy to Nexus') {
       steps {
         unstash 'app-jar'
-
-        // dynamically locate the JAR, in case the name/casing changes
         script {
-          def jarPath = findFiles(glob: 'target/*.jar')[0].path
+          def jar = findFiles(glob: 'target/*.jar')[0].path
 
           nexusArtifactUploader(
             nexusVersion  : 'nexus3',
             protocol      : 'http',
             nexusUrl      : '3.93.9.212:8081',
-            credentialsId : 'nexus-deployer',       // ← replace with your real Jenkins credentials ID
+            credentialsId : 'Spring-Clinic',       // ← exact ID from your Jenkins credentials
             groupId       : 'org.springframework.samples',
             version       : '3.1.0',
             repository    : 'Spring-Clinic',
             artifacts     : [[
               artifactId : 'spring-clinic',
               classifier : '',
-              file       : jarPath,
+              file       : jar,
               type       : 'jar'
             ]]
           )
@@ -42,11 +37,7 @@ pipeline {
   }
 
   post {
-    success {
-      echo '✅ Pipeline completed successfully.'
-    }
-    failure {
-      echo '❌ Pipeline failed – check the console logs.'
-    }
+    success { echo '✅ Pipeline completed successfully.' }
+    failure { echo '❌ Pipeline failed – check the console logs.' }
   }
 }
