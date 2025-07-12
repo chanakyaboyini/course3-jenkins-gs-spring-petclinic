@@ -6,15 +6,18 @@ pipeline {
   }
 
   environment {
-    // Bind credentials so we can use them in shell or settings.xml
+    // Jenkins credentials ID for your Nexus deploy user
     NEXUS_CRED = credentials('nexus-deployer')
+    // Host (IP or DNS) and port of your AWS Nexus instance
+    NEXUS_HOST = '13.218.71.63:8081'
   }
 
   stages {
     stage('Validate Nexus Access') {
       steps {
         echo "Using Nexus user: ${NEXUS_CRED_USR}"
-        sh "curl -u ${NEXUS_CRED_USR}:${NEXUS_CRED_PSW} https://13.218.71.63:8081/service/rest/v1/status"
+        // now using HTTPS
+        sh "curl -u ${NEXUS_CRED_USR}:${NEXUS_CRED_PSW} https://${NEXUS_HOST}/service/rest/v1/status"
       }
     }
 
@@ -32,13 +35,10 @@ pipeline {
           // locate the built JAR
           def jarPath = findFiles(glob: 'target/*.jar')[0].path
 
-          // Choose one of two methods:
-
-          // Method A: Nexus Artifact Uploader Plugin
           nexusArtifactUploader(
             nexusVersion       : 'nexus3',
-            protocol           : 'http',
-            nexusUrl           : "13.218.71.63:8081",
+            protocol           : 'https',                 // switch to HTTPS
+            nexusUrl           : NEXUS_HOST,
             credentialsId      : 'nexus-deployer',
             groupId            : 'org.springframework.samples',
             version            : '3.1.0',
@@ -51,23 +51,17 @@ pipeline {
               type       : 'jar'
             ]]
           )
-
-          // Method B: Native Maven Deploy
-          /*
-          sh """
-            mvn deploy \
-              -DskipTests \
-              -s ${configFile('nexus-settings')} \
-              -DaltDeploymentRepository=spring-clinic::default::http://${NEXUS_HOST}:8081/repository/Spring-Clinic
-          """
-          */
         }
       }
     }
   }
 
   post {
-    success { echo '✅ Pipeline completed and artifact deployed to Nexus.' }
-    failure { echo '❌ Pipeline failed – inspect console logs for details.' }
+    success {
+      echo '✅ Pipeline completed and artifact deployed to Nexus.'
+    }
+    failure {
+      echo '❌ Pipeline failed – inspect console logs for details.'
+    }
   }
 }
