@@ -14,7 +14,7 @@ pipeline {
     stage('Validate Nexus Access') {
       steps {
         echo "Using Nexus user: ${NEXUS_CRED_USR}"
-        sh "curl -u ${NEXUS_CRED_USR}:${NEXUS_CRED_PSW} http://13.218.71.63:8081/service/rest/v1/status"
+        sh "curl -u ${NEXUS_CRED_USR}:${NEXUS_CRED_PSW} https://13.218.71.63:8081/service/rest/v1/status"
       }
     }
 
