@@ -51,7 +51,7 @@ pipeline {
             nexusUrl           : NEXUS_HOST,
             credentialsId      : 'nexus-deployer',
             groupId            : 'org.springframework.samples',
-            version            : '3.1.0',
+            version            : '3.1.1',
             repository         : 'Spring-Clinic',
             snapshotRepository : 'Spring-Clinic-snapshots',
             artifacts          : [[
