@@ -9,7 +9,7 @@ pipeline {
     // bind your Nexus deploy credentials
     NEXUS_CRED = credentials('nexus-deployer')
     // Nexus host and port (no scheme)
-    NEXUS_HOST = '13.218.71.63:8081'
+    NEXUS_HOST = '54.147.50.45:8081'
   }
 
   stages {
