@@ -6,20 +6,19 @@ pipeline {
   }
 
   environment {
-    // Nexus deploy credentials
-    NEXUS_CRED        = credentials('nexus-deployer')
+    // your Nexus deploy credentials
+    NEXUS_CRED         = credentials('nexus-deployer')
     // AWS settings
-    AWS_REGION        = 'us-east-1'
-    AWS_CREDENTIALS   = 'jenkins-aws-start-stop'             // your AWS Credentials ID in Jenkins
+    AWS_REGION         = 'us-east-1'
+    AWS_CREDENTIALS    = 'aws-creds'               // AWS creds ID in Jenkins
     // Nexus EC2 details
-    NEXUS_INSTANCE_ID = 'i-07e528bbf536acdcd'
-    NEXUS_PORT        = '8081'
+    NEXUS_INSTANCE_ID  = 'i-07e528bbf536acdcd'
+    NEXUS_PORT         = '8081'
   }
 
   stages {
     stage('Start Nexus EC2') {
       steps {
-        // bind AWS creds so aws CLI can find them
         withCredentials([[
           $class: 'AmazonWebServicesCredentialsBinding',
           credentialsId: AWS_CREDENTIALS
@@ -44,7 +43,6 @@ pipeline {
           credentialsId: AWS_CREDENTIALS
         ]]) {
           script {
-            // query AWS for the current public IP and append port
             def ip = sh(
               script: """
                 aws ec2 describe-instances \
@@ -62,17 +60,28 @@ pipeline {
       }
     }
 
-    stage('Validate Nexus Access') {
+    stage('Wait for Nexus to Be Ready') {
       steps {
+        // reuse same Nexus credentials to hit the status endpoint
         withCredentials([usernamePassword(
           credentialsId: 'nexus-deployer',
           usernameVariable: 'NEXUS_USR',
           passwordVariable: 'NEXUS_PSW'
         )]) {
-          echo "Using Nexus user: ${NEXUS_USR}"
-          //CHECKSTYLE:OFF:NoHttp
-          sh 'curl -u $NEXUS_USR:$NEXUS_PSW http://' + NEXUS_HOST + '/service/rest/v1/status'
-          //CHECKSTYLE:ON:NoHttp
+          sh '''
+            echo "Waiting up to 5 minutes for Nexus to respond on port ${NEXUS_PORT}…"
+            for i in {1..30}; do
+              # -s = silent, -f = fail on HTTP>=400
+              if curl -u $NEXUS_USR:$NEXUS_PSW -sf http://$NEXUS_HOST/service/rest/v1/status; then
+                echo "✓ Nexus is up!"
+                exit 0
+              fi
+              echo "…not ready yet (attempt $i). Retrying in 10s."
+              sleep 10
+            done
+            echo "✗ Nexus did not respond in time."
+            exit 1
+          '''
         }
       }
     }
@@ -92,7 +101,7 @@ pipeline {
           nexusArtifactUploader(
             nexusVersion       : 'nexus3',
             protocol           : 'http',
-            nexusUrl           : NEXUS_HOST,
+            nexusUrl           : env.NEXUS_HOST,
             credentialsId      : 'nexus-deployer',
             groupId            : 'org.springframework.samples',
             version            : '3.1.1',
@@ -111,11 +120,7 @@ pipeline {
   }
 
   post {
-    success {
-      echo '✅ Pipeline completed and artifact deployed to Nexus.'
-    }
-    failure {
-      echo '❌ Pipeline failed – inspect console logs for details.'
-    }
+    success { echo '✅ Pipeline completed and artifact deployed.' }
+    failure { echo '❌ Pipeline failed – check the logs above.' }
   }
 }
