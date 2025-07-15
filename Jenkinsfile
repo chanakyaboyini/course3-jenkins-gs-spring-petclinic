@@ -10,7 +10,7 @@ pipeline {
     NEXUS_CRED         = credentials('nexus-deployer')
     // AWS settings
     AWS_REGION         = 'us-east-1'
-    AWS_CREDENTIALS    = 'aws-creds'               // AWS creds ID in Jenkins
+    AWS_CREDENTIALS    = 'jenkins-aws-start-stop'               // AWS creds ID in Jenkins
     // Nexus EC2 details
     NEXUS_INSTANCE_ID  = 'i-07e528bbf536acdcd'
     NEXUS_PORT         = '8081'
